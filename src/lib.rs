@@ -5,7 +5,6 @@ pub mod ip_lookup {
     use std::cmp::Ordering;
     use std::error::Error;
     use csv::Reader;
-    use std::time::Instant;
 
 
     #[derive(Debug, Clone)]
@@ -90,41 +89,6 @@ pub mod ip_lookup {
                 None
             }
         }
-    }
-
-    fn main() -> Result<(), Box<dyn Error>> {
-        let file_path = "locationv4.csv";  // Path to your CSV file
-
-        let start_time = Instant::now();
-        let ip_ranges = read_ip_ranges(file_path)?;
-        let elapsed_time = start_time.elapsed();
-
-        println!("Loaded {} IP ranges in {} seconds", ip_ranges.len(), elapsed_time.as_secs_f32());
-        
-        let mut ip_decimal = 16777475;
-        match ip_to_decimal("155.4.99.146") {
-            Ok(decimal) => {
-                // println!("The decimal representation of 155.4.99.146 is {}", decimal)
-                ip_decimal = decimal;
-            },
-            Err(e) => println!("Error: {}", e),
-        }
-
-
-        let start_time = Instant::now();
-
-        match find_ip_range(ip_decimal, &ip_ranges[..]) {
-            Some(range) => println!("IP is in range: {:?}", range),
-            None => println!("IP not found in any range"),
-        }
-        let elapsed_time = start_time.elapsed();
-        println!("Search took {} seconds", elapsed_time.as_secs_f32());
-
-        Ok(())
-        // let ip = "1.5.0.12";
-        // let decimal = ip_to_decimal(ip);
-        // println!("The decimal representation of {} is {}", ip, decimal);
-        // println!("Hello, world!");
     }
 }
 pub use crate::ip_lookup::look_up;
