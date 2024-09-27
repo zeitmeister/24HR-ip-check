@@ -1,6 +1,6 @@
 use ip_check::ip_lookup::{Looker, IpLookup};
 fn main(){
-    let ip = "37.221.104.103";
+    let ip = "1.22.104.13";
     let file_path = "locationv4.csv";
     let looker = Looker::new(file_path.to_string());
     let result = looker.look_up(ip);
