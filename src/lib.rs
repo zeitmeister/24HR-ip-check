@@ -11,9 +11,76 @@ pub mod ip_lookup {
     pub struct IpRange {
         start: u32,
         end: u32,
-        country: String,
-        region: String,
-        city: String,
+        pub country: String,
+        pub region: String,
+        pub city: String,
+    }
+
+    #[derive(Debug)]
+    pub struct Looker {
+        pub file_path: String,
+        pub ip_ranges: Vec<IpRange>,
+    }
+
+    pub trait IpLookup {
+        fn look_up(&self, ip: &str) -> Option<IpRange>;
+    }
+
+    impl Looker {
+        pub fn new(file_path: String) -> Self {
+            let mut rdr = match Reader::from_path(&file_path) {
+                Err(e) => {
+                    panic!("Error: {}", e);
+                },
+                Ok(rdr) => {
+                    rdr
+                }
+            };
+            let mut ip_ranges = Vec::new();
+            
+            for result in rdr.records() {
+                let record = result.unwrap();
+                let start: u32 = record[0].parse().unwrap();
+                let end: u32 = record[1].parse().unwrap();
+                let country = record[2].to_string();
+                let region = record[4].to_string();
+                let city = record[5].to_string();
+                
+                ip_ranges.push(IpRange { start, end, country, region, city });
+            }
+
+            Looker {
+                file_path,
+                ip_ranges,
+            }
+        }
+
+    }
+
+    impl IpLookup for Looker {
+        fn look_up(&self, ip: &str) -> Option<IpRange> {
+            let ip_decimal_to_use = match ip_to_decimal(ip) {
+                Err(e) => {
+                    println!("Error: {}", e);
+                    return None;
+                },
+                Ok(ip_decimal) => {
+                    ip_decimal
+                }
+            };
+            let ip_ranges_to_use = &self.ip_ranges;
+            
+            match find_ip_range(ip_decimal_to_use, &ip_ranges_to_use[..]) {
+                Some(range) => {
+                    println!("IP is in range: {:?}", range);
+                    Some(range)
+                },
+                None => {
+                    println!("IP not found in any range");
+                    None
+                }
+            }
+        }
     }
 
     fn read_ip_ranges(file_path: &str) -> Result<Vec<IpRange>, Box<dyn Error>> {
@@ -79,6 +146,7 @@ pub mod ip_lookup {
                 ip_ranges
             }
         };
+        
         match find_ip_range(ip_decimal_to_use, &ip_ranges_to_use[..]) {
             Some(range) => {
                 println!("IP is in range: {:?}", range);
@@ -91,4 +159,4 @@ pub mod ip_lookup {
         }
     }
 }
-pub use crate::ip_lookup::look_up;
+pub use crate::ip_lookup::{look_up, Looker, IpLookup};
