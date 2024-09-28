@@ -7,11 +7,11 @@ use ip_check::{Looker, IpLookup};
 let looker = Looker::new(file_path.to_string());
 ```
 
-You can the use the looker variable to call the look_up method like this to get a IP result with Country, Region and City:
+You can then use the looker variable to call the look_up method like this to get a IP result with Country, Region and City:
 
 
 ```rust
-    let ip = "
+    let ip = "12.22.104.13";
     let result = looker.look_up(ip);
     match result {
         Some(ip_range) => {
